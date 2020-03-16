@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class FetchUserServiceImpl implements FetchUserService {
+class FetchUserServiceImpl implements FetchUserService {
 
     @Autowired
     UserRepository userRepository;

@@ -34,10 +34,10 @@ class AppApplicationTests {
 	}
 
 	@Test
-	public void givenValidRequest_WhenCreateUser_ThenStatus200() throws Exception {
+	public void givenValidRequest_WhenCreateUser_ThenStatus200AndUserExists() throws Exception {
 		mvc.perform(post("/api/user")
 				.content("{" +
-						"\"email\" : \"namedomain.com\", " +
+						 "\"email\" : \"name@domain.com\", " +
 						"\"password\" : \"password\"" +
 						"}")
 				.contentType(MediaType.APPLICATION_JSON))
@@ -45,13 +45,66 @@ class AppApplicationTests {
 
 		mvc.perform(get("/api/user")
 				.content("{" +
-						"\"email\" : \"namedomain.com\"" +
+						"\"email\" : \"name@domain.com\"" +
 						"}")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(content().json("{" +
-						"\"email\" : \"namedomain.com\"" +
+						"\"email\" : \"name@domain.com\"" +
 						"}"));
+	}
+
+	@Test
+	public void givenExistingUser_WhenCreateUser_ThenStatus400() throws Exception {
+		mvc.perform(post("/api/user")
+				.content("{" +
+						 "\"email\" : \"name2@domain.com\", " +
+						 "\"password\" : \"password\"" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mvc.perform(post("/api/user")
+				.content("{" +
+						 "\"email\" : \"name2@domain.com\", " +
+						 "\"password\" : \"password\"" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest());
+	}
+
+
+	@Test
+	public void givenInvalidRequest_WhenCreateUser_Returns400() throws Exception {
+		mvc.perform(post("/api/user")
+				.content("{" +
+						 "\"password\" : \"password\"" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest());
+
+	}
+
+	@Test
+	public void givenInvalidRequest_WhenFetchUser_Returns400() throws Exception {
+		mvc.perform(get("/api/user")
+				.content("{" +
+						 "\"email\" : \"email\"" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest());
+
+	}
+
+	@Test
+	public void givenNoUser_WhenFetchUser_Returns404() throws Exception {
+		mvc.perform(get("/api/user")
+				.content("{" +
+						 "\"email\" : \"email@email.com\"" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotFound());
+
 	}
 
 }

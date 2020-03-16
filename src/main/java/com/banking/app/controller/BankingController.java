@@ -3,6 +3,7 @@ package com.banking.app.controller;
 import com.banking.app.controller.request.FetchUserRequest;
 import com.banking.app.controller.request.RegisterUserRequest;
 import com.banking.app.controller.response.FetchUserResponse;
+import com.banking.app.exception.UserAlreadyExistsException;
 import com.banking.app.service.FetchUserService;
 import com.banking.app.service.RegisterUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +27,22 @@ public class BankingController {
     FetchUserService fetchUserService;
 
     @PostMapping("/user")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterUserRequest signUpUserRequest) {
-        userSignUpService.registerUser(signUpUserRequest);
-        return ResponseEntity.ok("{}");
+    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterUserRequest signUpUserRequest){
+        ResponseEntity<String> response;
+        try {
+            userSignUpService.registerUser(signUpUserRequest);
+            response = ResponseEntity.ok("{}");
+        } catch(UserAlreadyExistsException e){
+            response = ResponseEntity.badRequest().body(e.toString());
+        }
+        return response;
     }
 
     @GetMapping("/user")
-    public ResponseEntity<FetchUserResponse> fetchUser(@Valid @RequestBody FetchUserRequest fetchUserRequest) throws Exception {
-        FetchUserResponse response = fetchUserService
+    public ResponseEntity<FetchUserResponse> fetchUser(@Valid @RequestBody FetchUserRequest fetchUserRequest) {
+        return fetchUserService
                 .fetchUser(fetchUserRequest)
-                .orElseThrow(Exception::new);
-        return ResponseEntity.ok(response);
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

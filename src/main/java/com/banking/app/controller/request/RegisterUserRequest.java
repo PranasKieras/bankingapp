@@ -1,17 +1,17 @@
 package com.banking.app.controller.request;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 
 public class RegisterUserRequest implements Serializable {
 
     @Email(message = "needs to be of valid email format")
-    @NotBlank(message = "mandatory field")
+    @NotEmpty(message = "email is a mandatory field")
+    @Size(min = 5, max=100,  message = "email must be between 5 and 100 characters")
     private String email;
 
-    @Min(value=8, message = "mandatory field min length 8 characters")
+    @NotEmpty(message = "password is a mandatory field")
+    @Size(min=8, max=100, message = "mandatory field min length 8 max length 100 characters")
     private String password;
 
     public String getEmail() {

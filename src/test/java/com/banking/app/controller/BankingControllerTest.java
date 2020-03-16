@@ -3,6 +3,7 @@ package com.banking.app.controller;
 import com.banking.app.controller.request.FetchUserRequest;
 import com.banking.app.controller.request.RegisterUserRequest;
 import com.banking.app.controller.response.FetchUserResponse;
+import com.banking.app.exception.UserAlreadyExistsException;
 import com.banking.app.service.FetchUserService;
 import com.banking.app.service.RegisterUserService;
 import org.junit.Test;
@@ -33,7 +34,7 @@ public class BankingControllerTest {
     private FetchUserService fetchUserService;
 
     @Test
-    public void givenSignUpRequest_RegisterUserServiceIsCalled(){
+    public void whenRegisterUserRequest_RegisterUserServiceIsCalled() throws UserAlreadyExistsException {
         RegisterUserRequest signUpRequest = new RegisterUserRequest();
 
         controller.registerUser(signUpRequest);
@@ -42,7 +43,7 @@ public class BankingControllerTest {
     }
 
     @Test
-    public void givenEmail_WhenFetchUser_ThenReturnUserResponse() throws Exception {
+    public void whenFetchUser_ThenReturnUserResponse() throws Exception {
         String email = "name@domain.com";
         FetchUserRequest fetchUserRequest = new FetchUserRequest();
         fetchUserRequest.setEmail(email);
@@ -54,6 +55,18 @@ public class BankingControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(email, response.getBody().getEmail());
+    }
+
+    @Test
+    public void whenUserNotFound_Return400WithErrorMessage() throws Exception {
+        String email = "name@domain.com";
+        FetchUserRequest fetchUserRequest = new FetchUserRequest();
+        fetchUserRequest.setEmail(email);
+        when(fetchUserService.fetchUser(fetchUserRequest))
+                .thenReturn(Optional.empty());
+
+        ResponseEntity<FetchUserResponse> response = controller.fetchUser(fetchUserRequest);
+
     }
 
     private FetchUserResponse createFetchUserResponse(String email){
