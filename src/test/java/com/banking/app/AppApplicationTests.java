@@ -12,6 +12,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,9 +34,24 @@ class AppApplicationTests {
 	}
 
 	@Test
-	public void givenUsers_WhenCreateUser_thenStatus200() throws Exception {
+	public void givenValidRequest_WhenCreateUser_ThenStatus200() throws Exception {
 		mvc.perform(post("/api/user")
+				.content("{" +
+						"\"email\" : \"namedomain.com\", " +
+						"\"password\" : \"password\"" +
+						"}")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
+
+		mvc.perform(get("/api/user")
+				.content("{" +
+						"\"email\" : \"namedomain.com\"" +
+						"}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(content().json("{" +
+						"\"email\" : \"namedomain.com\"" +
+						"}"));
 	}
+
 }
