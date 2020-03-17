@@ -1,2 +1,2 @@
 # bankingapp
-simple banking app with springboot
+simple banking com.banking.app with springboot

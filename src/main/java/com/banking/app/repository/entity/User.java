@@ -1,6 +1,10 @@
 package com.banking.app.repository.entity;
 
+import javax.money.MonetaryAmount;
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -10,13 +14,18 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
 
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(nullable = false)
     private String password;
 
+    @Column(columnDefinition = "decimal(7,2)")
+    private BigDecimal balance = BigDecimal.ZERO;
+
+    @OneToMany(mappedBy = "id")
+    private Set<AccountEvent> accountEvents;
 
     public String getEmail() {
         return email;
@@ -36,5 +45,36 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Set<AccountEvent> getAccountEvents() {
+        return accountEvents;
+    }
+
+    public void setAccountEvents(Set<AccountEvent> accountEvents) {
+        this.accountEvents = accountEvents;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(email, user.email) &&
+                Objects.equals(password, user.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, email, password);
     }
 }

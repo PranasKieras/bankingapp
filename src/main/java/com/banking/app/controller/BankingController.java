@@ -21,16 +21,16 @@ import javax.validation.Valid;
 public class BankingController {
 
     @Autowired
-    RegisterUserService userSignUpService;
+    private RegisterUserService registerUserService;
 
     @Autowired
-    FetchUserService fetchUserService;
+    private FetchUserService fetchUserService;
 
     @PostMapping("/user")
     public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterUserRequest signUpUserRequest){
         ResponseEntity<String> response;
         try {
-            userSignUpService.registerUser(signUpUserRequest);
+            registerUserService.registerUser(signUpUserRequest);
             response = ResponseEntity.ok("{}");
         } catch(UserAlreadyExistsException e){
             response = ResponseEntity.badRequest().body(e.toString());

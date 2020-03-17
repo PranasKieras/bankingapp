@@ -14,7 +14,7 @@ import java.util.Optional;
 class FetchUserServiceImpl implements FetchUserService {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Override
     public Optional<FetchUserResponse> fetchUser(FetchUserRequest fetchUserRequest) {
@@ -26,6 +26,7 @@ class FetchUserServiceImpl implements FetchUserService {
     private Optional<FetchUserResponse> processDbEntity(User user){
         FetchUserResponse response = new FetchUserResponse();
         response.setEmail(user.getEmail());
+        response.setBalance(user.getBalance());
         return Optional.of(response);
     }
 }

@@ -1,10 +1,13 @@
 package com.banking.app.controller.response;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 public class FetchUserResponse implements Serializable {
 
     private String email;
+
+    private BigDecimal balance;
 
     public String getEmail() {
         return email;
@@ -12,5 +15,13 @@ public class FetchUserResponse implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
     }
 }
