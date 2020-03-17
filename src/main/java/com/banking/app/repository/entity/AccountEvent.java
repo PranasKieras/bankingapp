@@ -1,6 +1,8 @@
 package com.banking.app.repository.entity;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity
 @Table(name = "account_events")
@@ -11,9 +13,50 @@ public class AccountEvent {
     @Column(name = "id")
     private Long id;
 
+    @Column
+    private BigDecimal amount;
+
     @ManyToOne
-    @JoinColumn(name="user_id", nullable=false)
+    @JoinColumn(name="user", nullable=false)
     private User user;
 
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AccountEvent that = (AccountEvent) o;
+        return Objects.equals(id, that.id) &&
+               Objects.equals(amount, that.amount) &&
+               Objects.equals(user, that.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, amount, user);
+    }
 }

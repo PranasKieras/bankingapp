@@ -21,11 +21,14 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(columnDefinition = "decimal(7,2)")
+    @Column(columnDefinition = "decimal(7,2) not null check (balance >= 0)")
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @OneToMany(mappedBy = "id")
+    @OneToMany(mappedBy = "user")
     private Set<AccountEvent> accountEvents;
+
+    @Version
+    private Integer version;
 
     public String getEmail() {
         return email;
@@ -61,6 +64,18 @@ public class User {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     @Override

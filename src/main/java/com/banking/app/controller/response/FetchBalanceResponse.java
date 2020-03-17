@@ -3,7 +3,7 @@ package com.banking.app.controller.response;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class FetchUserResponse implements Serializable {
+public class FetchBalanceResponse implements Serializable {
 
     private String email;
 

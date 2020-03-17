@@ -33,23 +33,24 @@ class AppApplicationTests {
 	}
 
 	@Test
-	public void givenValidRequest_WhenCreateUser_ThenStatus200AndUserExists() throws Exception {
+	public void givenValidRequest_WhenCreateUser_ThenStatus200AndBalanceIsZero() throws Exception {
 		mvc.perform(post("/api/user")
 				.content("{" +
-						 "\"email\" : \"name@domain.com\", " +
+						 "\"email\" : \"email1@domain.com\", " +
 						"\"password\" : \"password\"" +
 						"}")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 
-		mvc.perform(get("/api/user")
+		mvc.perform(get("/api/user/balance")
 				.content("{" +
-						"\"email\" : \"name@domain.com\"" +
+						"\"email\" : \"email1@domain.com\", \n" +
+						"\"password\" : \"password\"" +
 						"}")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
 				.andExpect(content().json("{" +
-						"\"email\" : \"name@domain.com\", \n" +
+						"\"email\" : \"email1@domain.com\", \n" +
 						"\"balance\" : 0.00" +
 						"}"));
 	}
@@ -58,7 +59,7 @@ class AppApplicationTests {
 	public void givenExistingUser_WhenCreateUser_ThenStatus400() throws Exception {
 		mvc.perform(post("/api/user")
 				.content("{" +
-						 "\"email\" : \"name2@domain.com\", " +
+						 "\"email\" : \"email2@domain.com\", " +
 						 "\"password\" : \"password\"" +
 						 "}")
 				.contentType(MediaType.APPLICATION_JSON))
@@ -66,7 +67,7 @@ class AppApplicationTests {
 
 		mvc.perform(post("/api/user")
 				.content("{" +
-						 "\"email\" : \"name2@domain.com\", " +
+						 "\"email\" : \"email2@domain.com\", " +
 						 "\"password\" : \"password\"" +
 						 "}")
 				.contentType(MediaType.APPLICATION_JSON))
@@ -86,10 +87,11 @@ class AppApplicationTests {
 	}
 
 	@Test
-	public void givenInvalidRequest_WhenFetchUser_Returns400() throws Exception {
-		mvc.perform(get("/api/user")
+	public void givenInvalidRequest_WhenFetchBalance_Returns400() throws Exception {
+		mvc.perform(get("/api/user/balance")
 				.content("{" +
 						 "\"email\" : \"email\"" +
+						 "\"password\" : \"password\"" +
 						 "}")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isBadRequest());
@@ -97,13 +99,123 @@ class AppApplicationTests {
 	}
 
 	@Test
-	public void givenNoUser_WhenFetchUser_Returns404() throws Exception {
-		mvc.perform(get("/api/user")
+	public void givenNoUser_WhenFetchBalance_Returns404() throws Exception {
+		mvc.perform(get("/api/user/balance")
 				.content("{" +
-						 "\"email\" : \"email@email.com\"" +
+						 "\"email\" : \"email3@email.com\", \n" +
+						 "\"password\" : \"password\"" +
 						 "}")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isNotFound());
+
+	}
+
+	@Test
+	public void givenUserExists_WhenDeposit10_BalanceIs10() throws Exception {
+		mvc.perform(post("/api/user")
+				.content("{" +
+						 "\"email\" : \"email4@email.com\", \n" +
+						 "\"password\" : \"password\"" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mvc.perform(post("/api/user/deposit")
+				.content("{" +
+						 "\"email\" : \"email4@email.com\", \n" +
+						 "\"password\" : \"password\", \n" +
+						 "\"amount\" : 10.00 \n" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mvc.perform(get("/api/user/balance")
+				.content("{" +
+						 "\"email\" : \"email4@email.com\", \n" +
+						 "\"password\" : \"password\"" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(content().json("{" +
+										  "\"email\" : \"email4@email.com\", \n" +
+										  "\"balance\" : 10.00 " +
+										  "}"));
+
+
+	}
+
+	@Test
+	public void givenUserExists_WhenDeposit100_BalanceIs100() throws Exception {
+		mvc.perform(post("/api/user")
+				.content("{" +
+						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"password\" : \"password\"" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mvc.perform(post("/api/user/deposit")
+				.content("{" +
+						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"password\" : \"password\", \n" +
+						 "\"amount\" : 100.00 \n" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mvc.perform(get("/api/user/balance")
+				.content("{" +
+						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"password\" : \"password\"" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(content().json("{" +
+										  "\"email\" : \"email5@email.com\", \n" +
+										  "\"balance\" : 100.00 " +
+										  "}"));
+
+
+	}
+
+	@Test
+	public void givenUserExistsAndBalance0_whenWithdraw_throwException() throws Exception {
+		mvc.perform(post("/api/user")
+				.content("{" +
+						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"password\" : \"password\"" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mvc.perform(post("/api/user/deposit")
+				.content("{" +
+						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"password\" : \"password\", \n" +
+						 "\"amount\" : 100.00 \n" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mvc.perform(post("/api/user/withdraw")
+				.content("{" +
+						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"password\" : \"password\", \n" +
+						 "\"amount\" : 90.00 \n" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mvc.perform(post("/api/user/withdraw")
+				.content("{" +
+						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"password\" : \"password\", \n" +
+						 "\"amount\" : 20.00 \n" +
+						 "}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+
 
 	}
 

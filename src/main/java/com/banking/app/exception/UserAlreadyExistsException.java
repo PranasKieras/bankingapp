@@ -1,10 +1,10 @@
 package com.banking.app.exception;
 
-public class UserAlreadyExistsException extends BankingException{
+public class UserAlreadyExistsException extends Exception {
 
-    private static final int CODE = 400;
+    private static final String MESSAGE = "a user with a given email already exists";
 
     public UserAlreadyExistsException() {
-        super("a user with a given email already exists", CODE);
+        super(MESSAGE);
     }
 }

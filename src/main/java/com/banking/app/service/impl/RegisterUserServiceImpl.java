@@ -10,7 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
-class RegisterUserServiceImpl implements RegisterUserService {
+public class RegisterUserServiceImpl implements RegisterUserService {
 
     @Autowired
     UserRepository userRepository;
