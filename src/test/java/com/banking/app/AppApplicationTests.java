@@ -71,7 +71,8 @@ class AppApplicationTests {
 						 "\"password\" : \"password\"" +
 						 "}")
 				.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest());
+				.andExpect(status().isBadRequest())
+				.andExpect(content().string("a user with a given email already exists"));
 	}
 
 
@@ -106,7 +107,8 @@ class AppApplicationTests {
 						 "\"password\" : \"password\"" +
 						 "}")
 				.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isNotFound())
+				.andExpect(content().string("a user with such an email was not found"));
 
 	}
 
@@ -182,7 +184,7 @@ class AppApplicationTests {
 	public void givenUserExistsAndBalance0_whenWithdraw_throwException() throws Exception {
 		mvc.perform(post("/api/user")
 				.content("{" +
-						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"email\" : \"email6@email.com\", \n" +
 						 "\"password\" : \"password\"" +
 						 "}")
 				.contentType(MediaType.APPLICATION_JSON))
@@ -190,7 +192,7 @@ class AppApplicationTests {
 
 		mvc.perform(post("/api/user/deposit")
 				.content("{" +
-						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"email\" : \"email6@email.com\", \n" +
 						 "\"password\" : \"password\", \n" +
 						 "\"amount\" : 100.00 \n" +
 						 "}")
@@ -199,7 +201,7 @@ class AppApplicationTests {
 
 		mvc.perform(post("/api/user/withdraw")
 				.content("{" +
-						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"email\" : \"email6@email.com\", \n" +
 						 "\"password\" : \"password\", \n" +
 						 "\"amount\" : 90.00 \n" +
 						 "}")
@@ -208,13 +210,42 @@ class AppApplicationTests {
 
 		mvc.perform(post("/api/user/withdraw")
 				.content("{" +
-						 "\"email\" : \"email5@email.com\", \n" +
+						 "\"email\" : \"email6@email.com\", \n" +
 						 "\"password\" : \"password\", \n" +
 						 "\"amount\" : 20.00 \n" +
 						 "}")
 				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest())
+				.andExpect(content().string("not enough money on account to perform this operation"));
+	}
+
+	@Test
+	public void givenUserExists_WhenDeposit10_AccountEventsPresent() throws Exception {
+		mvc.perform(post("/api/user")
+				.content("{" +
+						"\"email\" : \"email7@email.com\", \n" +
+						"\"password\" : \"password\"" +
+						"}")
+				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 
+		mvc.perform(post("/api/user/deposit")
+				.content("{" +
+						"\"email\" : \"email7@email.com\", \n" +
+						"\"password\" : \"password\", \n" +
+						"\"amount\" : 10.00 \n" +
+						"}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+
+		mvc.perform(get("/api/user/statement")
+				.content("{" +
+						"\"email\" : \"email7@email.com\", \n" +
+						"\"password\" : \"password\"" +
+						"}")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(content().json("{\"statement\":[{\"id\":2,\"amount\":10.00,\"operation\":\"DEPOSIT\"}]}"));
 
 
 	}

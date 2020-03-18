@@ -19,37 +19,39 @@ class RegisterUserServiceImpSpec extends Specification {
 
     User user;
 
+    String email
 
-    def setup(){
+    String password
+
+    RegisterUserRequest registerUserRequest;
+
+
+    def setup() {
         registerUserService.userRepository = userRepository
         signUpRequest = new RegisterUserRequest()
         user = new User()
+        registerUserRequest = new RegisterUserRequest()
+        email = "email"
+        password = "password"
+        user.email = email
+        user.password = password
+        registerUserRequest.email = email
+        registerUserRequest.password = password
     }
 
     def "registerUser calls userRepository with correct user data"() {
-        given:
-            def email = "email"
-            def password = "password"
-            signUpRequest.email = email
-            signUpRequest.password = password
-            user.email = email
-            user.password = password
         when:
-            registerUserService.registerUser(signUpRequest);
+        registerUserService.registerUser(registerUserRequest);
         then:
-            1*userRepository.save(user)
+        1 * userRepository.save(user)
     }
 
     def "registerUser throws UserAlreadyExistsException when user already exists"() {
         given:
-            def email = "email"
-            def password = "password"
-            signUpRequest.setEmail(email)
-            signUpRequest.setPassword(password)
-            userRepository.save(_) >> {throw dataIntegrityViolationException}
+        userRepository.save(user) >> { throw dataIntegrityViolationException }
         when:
-            registerUserService.registerUser(signUpRequest);
+        registerUserService.registerUser(registerUserRequest);
         then:
-            thrown UserAlreadyExistsException
+        thrown UserAlreadyExistsException
     }
 }

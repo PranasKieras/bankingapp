@@ -1,6 +1,5 @@
 package com.banking.app.repository.entity;
 
-import javax.money.MonetaryAmount;
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;

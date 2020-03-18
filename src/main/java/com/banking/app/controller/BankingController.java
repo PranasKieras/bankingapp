@@ -1,16 +1,19 @@
 package com.banking.app.controller;
 
-import com.banking.app.controller.request.DepositRequest;
+import com.banking.app.controller.request.CashOperationRequest;
 import com.banking.app.controller.request.FetchBalanceRequest;
+import com.banking.app.controller.request.FetchStatementRequest;
 import com.banking.app.controller.request.RegisterUserRequest;
-import com.banking.app.controller.request.WithdrawalRequest;
 import com.banking.app.controller.response.FetchBalanceResponse;
+import com.banking.app.controller.response.FetchStatementResponse;
+import com.banking.app.exception.InsufficientFundsException;
 import com.banking.app.exception.UserAlreadyExistsException;
 import com.banking.app.exception.UserNotFoundException;
-import com.banking.app.service.DepositService;
+import com.banking.app.operation.Operation;
+import com.banking.app.service.CashOperationService;
 import com.banking.app.service.FetchBalanceService;
 import com.banking.app.service.RegisterUserService;
-import com.banking.app.service.WithdrawalService;
+import com.banking.app.service.StatementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,52 +36,38 @@ public class BankingController {
     private FetchBalanceService fetchBalanceService;
 
     @Autowired
-    private DepositService depositService;
+    private CashOperationService cashOperationService;
 
     @Autowired
-    private WithdrawalService withdrawalService;
+    private StatementService statementService;
 
     @PostMapping("/user")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterUserRequest signUpUserRequest){
-        ResponseEntity<String> response;
-        try {
-            registerUserService.registerUser(signUpUserRequest);
-            response = ResponseEntity.ok("{}");
-        } catch(UserAlreadyExistsException e){
-            response = ResponseEntity.badRequest().body(e.getMessage());
-        }
-        return response;
+    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterUserRequest signUpUserRequest) throws UserAlreadyExistsException {
+        registerUserService.registerUser(signUpUserRequest);
+        return ResponseEntity.ok("{}");
     }
 
     @GetMapping("/user/balance")
-    public ResponseEntity<FetchBalanceResponse> fetchBalance(@Valid @RequestBody FetchBalanceRequest fetchBalanceRequest) {
-        return fetchBalanceService
-                .fetchBalance(fetchBalanceRequest)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<FetchBalanceResponse> fetchBalance(@Valid @RequestBody FetchBalanceRequest fetchBalanceRequest) throws UserNotFoundException {
+        return ResponseEntity.ok(fetchBalanceService
+                .fetchBalance(fetchBalanceRequest));
     }
 
     @PostMapping("/user/deposit")
-    public ResponseEntity<String> deposit(@Valid @RequestBody DepositRequest depositRequest) {
-        ResponseEntity<String> response = null;
-        try {
-            depositService.deposit(depositRequest);
-            response = ResponseEntity.ok("{}");
-        } catch (UserNotFoundException e) {
-            response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-        return response;
+    public ResponseEntity<String> deposit(@Valid @RequestBody CashOperationRequest depositRequest) throws UserNotFoundException, InsufficientFundsException {
+        cashOperationService.perform(depositRequest, Operation.DEPOSIT);
+        return ResponseEntity.ok("{}");
     }
 
     @PostMapping("/user/withdraw")
-    public ResponseEntity<String> withdraw(@Valid @RequestBody WithdrawalRequest withdrawalRequest) {
-        ResponseEntity<String> response = null;
-        try {
-            withdrawalService.withdraw(withdrawalRequest);
-            response = ResponseEntity.ok("{}");
-        } catch (UserNotFoundException e) {
-            response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-        return response;
+    public ResponseEntity<String> withdraw(@Valid @RequestBody CashOperationRequest withdrawalRequest) throws UserNotFoundException, InsufficientFundsException {
+        cashOperationService.perform(withdrawalRequest, Operation.WITHDRAWAL);
+        return ResponseEntity.ok("{}");
+    }
+
+    @GetMapping("/user/statement")
+    public ResponseEntity<FetchStatementResponse> fetchStatement(@Valid @RequestBody FetchStatementRequest fetchStatementRequest) {
+        return ResponseEntity.ok(statementService
+                .fetchStatement(fetchStatementRequest));
     }
 }

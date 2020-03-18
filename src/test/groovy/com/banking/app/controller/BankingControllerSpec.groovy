@@ -1,19 +1,18 @@
 package com.banking.app.controller
 
-import com.banking.app.controller.request.DepositRequest
+import com.banking.app.controller.request.CashOperationRequest
 import com.banking.app.controller.request.FetchBalanceRequest
+import com.banking.app.controller.request.FetchStatementRequest
 import com.banking.app.controller.request.RegisterUserRequest
 import com.banking.app.controller.response.FetchBalanceResponse
-import com.banking.app.exception.UserAlreadyExistsException
-import com.banking.app.exception.UserNotFoundException
-import com.banking.app.service.DepositService
+import com.banking.app.controller.response.FetchStatementResponse
+import com.banking.app.operation.Operation
+import com.banking.app.service.CashOperationService
 import com.banking.app.service.FetchBalanceService
 import com.banking.app.service.RegisterUserService
-import org.springframework.http.HttpStatus
+import com.banking.app.service.StatementService
 import org.springframework.http.ResponseEntity
 import spock.lang.Specification
-
-import static org.springframework.http.ResponseEntity.badRequest
 
 class BankingControllerSpec extends Specification {
 
@@ -23,16 +22,16 @@ class BankingControllerSpec extends Specification {
 
     FetchBalanceService fetchBalanceService = Mock()
 
-    DepositService depositService = Mock()
+    CashOperationService cashOperationService = Mock()
 
-    FetchBalanceRequest fetchBalanceRequest
+    StatementService statementService = Mock()
 
     def setup() {
         controller.registerUserService = registerUserService
         controller.fetchBalanceService = fetchBalanceService
-        controller.depositService = depositService
+        controller.cashOperationService = cashOperationService
+        controller.statementService = statementService;
 
-        fetchBalanceRequest = new FetchBalanceRequest()
     }
 
     def "registerUser calls registerUserService registerUserRequest"() {
@@ -47,70 +46,53 @@ class BankingControllerSpec extends Specification {
         response == ResponseEntity.ok("{}")
     }
 
-    def "registerUser returns 400 response when user already registered"() {
-        given:
-        def registerUserRequest = new RegisterUserRequest()
-        registerUserService.registerUser(registerUserRequest) >> { throw new UserAlreadyExistsException() }
-
-        when:
-        def response = controller.registerUser(registerUserRequest)
-
-        then:
-        response == ResponseEntity.badRequest().body("a user with a given email already exists")
-    }
-
     def "fetchBalance returns user when it exists"() {
         given:
-        def email = "name@domain.com"
-        def serviceResponse = createFetchBalanceResponse(email)
-        fetchBalanceRequest.email = email
-        fetchBalanceService.fetchBalance(fetchBalanceRequest) >> Optional.of(serviceResponse)
+        def fetchBalanceResponse = new FetchBalanceResponse()
+        def fetchBalanceRequest = new FetchBalanceRequest()
+        fetchBalanceService.fetchBalance(fetchBalanceRequest) >> fetchBalanceResponse
 
         when:
         def response = controller.fetchBalance(fetchBalanceRequest)
 
         then:
-        response == ResponseEntity.ok(serviceResponse)
+        response == ResponseEntity.ok(fetchBalanceResponse)
     }
 
-    def "fetchBalance returns 404 response when user not found"() {
+    def "deposit calls cashOperationService"() {
         given:
-        def email = "name@domain.com";
-        fetchBalanceRequest.email = email
-        fetchBalanceService.fetchBalance(fetchBalanceRequest) >> Optional.empty()
+        def depositRequest = new CashOperationRequest()
 
-        when:
-        def response = controller.fetchBalance(fetchBalanceRequest)
-
-        then:
-        response == ResponseEntity.notFound().build()
-    }
-
-    def "deposit calls depositService"() {
-        given:
-        def depositRequest = new DepositRequest()
         when:
         def response = controller.deposit(depositRequest)
+
         then:
-        1 * depositService.deposit(depositRequest)
+        1 * cashOperationService.perform(depositRequest, Operation.DEPOSIT)
         response == ResponseEntity.ok("{}")
     }
 
-    def "deposit returns 404 response when user not found"() {
+    def "withdraw calls cashOperationService"() {
         given:
-        def depositRequest = new DepositRequest()
-        depositService.deposit(depositRequest) >> { throw new UserNotFoundException() }
+        def cashOperationRequest = new CashOperationRequest()
 
         when:
-        def response = controller.deposit(depositRequest)
+        def response = controller.withdraw(cashOperationRequest)
 
         then:
-        response == ResponseEntity.status(HttpStatus.NOT_FOUND).body("a user with such an email was not found")
+        1 * cashOperationService.perform(cashOperationRequest, Operation.WITHDRAWAL)
+        response == ResponseEntity.ok("{}")
     }
 
-    def createFetchBalanceResponse(String email) {
-        def response = new FetchBalanceResponse()
-        response.email = email
-        return response
+    def "fetchStatement return correct response"() {
+        given:
+        def fetchStatementRequest = new FetchStatementRequest()
+        def fetchStatementResponse = new FetchStatementResponse()
+        statementService.fetchStatement(fetchStatementRequest) >> fetchStatementResponse
+
+        when:
+        def response = controller.fetchStatement(fetchStatementRequest)
+
+        then:
+        response == ResponseEntity.ok(fetchStatementResponse)
     }
 }

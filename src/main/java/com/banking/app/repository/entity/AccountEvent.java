@@ -1,5 +1,7 @@
 package com.banking.app.repository.entity;
 
+import com.banking.app.operation.Operation;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -15,6 +17,9 @@ public class AccountEvent {
 
     @Column
     private BigDecimal amount;
+
+    @Column
+    private Operation operation;
 
     @ManyToOne
     @JoinColumn(name="user", nullable=false)
@@ -43,6 +48,14 @@ public class AccountEvent {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(Operation operation) {
+        this.operation = operation;
     }
 
     @Override
