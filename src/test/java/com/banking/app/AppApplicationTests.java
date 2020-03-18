@@ -43,6 +43,7 @@ class AppApplicationTests {
 				.andExpect(status().isOk());
 
 		mvc.perform(get("/api/user/balance")
+				.header("authenticated", "true")
 				.content("{" +
 						"\"email\" : \"email1@domain.com\", \n" +
 						"\"password\" : \"password\"" +
@@ -90,6 +91,7 @@ class AppApplicationTests {
 	@Test
 	public void givenInvalidRequest_WhenFetchBalance_Returns400() throws Exception {
 		mvc.perform(get("/api/user/balance")
+				.header("authenticated", "true")
 				.content("{" +
 						 "\"email\" : \"email\"" +
 						 "\"password\" : \"password\"" +
@@ -102,6 +104,7 @@ class AppApplicationTests {
 	@Test
 	public void givenNoUser_WhenFetchBalance_Returns404() throws Exception {
 		mvc.perform(get("/api/user/balance")
+				.header("authenticated", "true")
 				.content("{" +
 						 "\"email\" : \"email3@email.com\", \n" +
 						 "\"password\" : \"password\"" +
@@ -123,6 +126,7 @@ class AppApplicationTests {
 				.andExpect(status().isOk());
 
 		mvc.perform(post("/api/user/deposit")
+				.header("authenticated", "true")
 				.content("{" +
 						 "\"email\" : \"email4@email.com\", \n" +
 						 "\"password\" : \"password\", \n" +
@@ -132,6 +136,7 @@ class AppApplicationTests {
 				.andExpect(status().isOk());
 
 		mvc.perform(get("/api/user/balance")
+				.header("authenticated", "true")
 				.content("{" +
 						 "\"email\" : \"email4@email.com\", \n" +
 						 "\"password\" : \"password\"" +
@@ -157,6 +162,7 @@ class AppApplicationTests {
 				.andExpect(status().isOk());
 
 		mvc.perform(post("/api/user/deposit")
+				.header("authenticated", "true")
 				.content("{" +
 						 "\"email\" : \"email5@email.com\", \n" +
 						 "\"password\" : \"password\", \n" +
@@ -166,6 +172,7 @@ class AppApplicationTests {
 				.andExpect(status().isOk());
 
 		mvc.perform(get("/api/user/balance")
+				.header("authenticated", "true")
 				.content("{" +
 						 "\"email\" : \"email5@email.com\", \n" +
 						 "\"password\" : \"password\"" +
@@ -191,6 +198,7 @@ class AppApplicationTests {
 				.andExpect(status().isOk());
 
 		mvc.perform(post("/api/user/deposit")
+				.header("authenticated", "true")
 				.content("{" +
 						 "\"email\" : \"email6@email.com\", \n" +
 						 "\"password\" : \"password\", \n" +
@@ -200,6 +208,7 @@ class AppApplicationTests {
 				.andExpect(status().isOk());
 
 		mvc.perform(post("/api/user/withdraw")
+				.header("authenticated", "true")
 				.content("{" +
 						 "\"email\" : \"email6@email.com\", \n" +
 						 "\"password\" : \"password\", \n" +
@@ -209,6 +218,7 @@ class AppApplicationTests {
 				.andExpect(status().isOk());
 
 		mvc.perform(post("/api/user/withdraw")
+				.header("authenticated", "true")
 				.content("{" +
 						 "\"email\" : \"email6@email.com\", \n" +
 						 "\"password\" : \"password\", \n" +
@@ -230,6 +240,7 @@ class AppApplicationTests {
 				.andExpect(status().isOk());
 
 		mvc.perform(post("/api/user/deposit")
+				.header("authenticated", "true")
 				.content("{" +
 						"\"email\" : \"email7@email.com\", \n" +
 						"\"password\" : \"password\", \n" +
@@ -239,13 +250,14 @@ class AppApplicationTests {
 				.andExpect(status().isOk());
 
 		mvc.perform(get("/api/user/statement")
+				.header("authenticated", "true")
 				.content("{" +
 						"\"email\" : \"email7@email.com\", \n" +
 						"\"password\" : \"password\"" +
 						"}")
 				.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk())
-				.andExpect(content().json("{\"statement\":[{\"id\":2,\"amount\":10.00,\"operation\":\"DEPOSIT\"}]}"));
+				.andExpect(content().json("{\"statement\":[{\"amount\":10.00,\"operation\":\"DEPOSIT\"}]}"));
 
 
 	}

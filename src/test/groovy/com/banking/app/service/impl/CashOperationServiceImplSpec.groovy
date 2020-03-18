@@ -8,8 +8,9 @@ import com.banking.app.repository.AccountEventRepository
 import com.banking.app.repository.UserRepository
 import com.banking.app.repository.entity.AccountEvent
 import com.banking.app.repository.entity.User
-import org.springframework.dao.DataIntegrityViolationException
 import spock.lang.Specification
+
+import static java.math.BigDecimal.*
 
 class CashOperationServiceImplSpec extends Specification {
 
@@ -21,9 +22,9 @@ class CashOperationServiceImplSpec extends Specification {
 
     CashOperationRequest depositRequest
 
-    String email;
+    String email
 
-    String password;
+    String password
 
     def setup() {
         cashOperationService.userRepository = userRepository
@@ -33,20 +34,20 @@ class CashOperationServiceImplSpec extends Specification {
         password = "password"
         depositRequest.email = email
         depositRequest.password = password
-        depositRequest.amount = BigDecimal.TEN
+        depositRequest.amount = TEN
     }
 
     def "deposit calls AccountEventRepository and UserRepository when data is valid"() {
         given:
-        def user = createUser(email, password, BigDecimal.TEN)
+        def user = createUser(email, password, ZERO)
         userRepository.findByEmail(email) >> Optional.of(user)
 
         when:
         cashOperationService.perform(depositRequest, Operation.DEPOSIT)
 
         then:
-        1 * userRepository.save(createUser(email, password, BigDecimal.TEN))
-        1 * accountEventRepository.save(createAccountEvent(BigDecimal.TEN, user, Operation.DEPOSIT))
+        1 * userRepository.save(createUser(email, password, TEN))
+        1 * accountEventRepository.save(createAccountEvent(TEN, user, Operation.DEPOSIT))
     }
 
     def "deposit calls throws UserNotFoundException when user does not exist"() {
@@ -62,7 +63,7 @@ class CashOperationServiceImplSpec extends Specification {
 
     def "withdrawal throws InsufficientFundsException amount larger than balance"() {
         given:
-        def user = createUser(email, password, BigDecimal.ONE)
+        def user = createUser(email, password, ONE)
         userRepository.findByEmail(email) >> Optional.of(user)
         when:
         cashOperationService.perform(depositRequest, Operation.WITHDRAWAL)
@@ -73,14 +74,14 @@ class CashOperationServiceImplSpec extends Specification {
 
     def "withdrawal is ok when amount same as balance"() {
         given:
-        def user = createUser(email, password, BigDecimal.TEN)
+        def user = createUser(email, password, TEN)
         userRepository.findByEmail(email) >> Optional.of(user)
         when:
         cashOperationService.perform(depositRequest, Operation.WITHDRAWAL)
 
         then:
-        1 * userRepository.save(createUser(email, password, BigDecimal.TEN))
-        1 * accountEventRepository.save(createAccountEvent(BigDecimal.TEN, user, Operation.WITHDRAWAL))
+        1 * userRepository.save(createUser(email, password, ZERO))
+        1 * accountEventRepository.save(createAccountEvent(TEN, user, Operation.WITHDRAWAL))
     }
 
     def createUser(String email, String password, BigDecimal balance) {

@@ -1,6 +1,6 @@
 package com.banking.app.service.impl
 
-import com.banking.app.controller.request.FetchBalanceRequest
+import com.banking.app.controller.request.AuthenticatedRequest
 import com.banking.app.exception.UserNotFoundException
 import com.banking.app.repository.UserRepository
 import com.banking.app.repository.entity.User
@@ -8,7 +8,7 @@ import spock.lang.Specification
 
 class FetchBalanceServiceImplSpec extends Specification {
 
-    FetchBalanceServiceImpl userService = new FetchBalanceServiceImpl();
+    FetchBalanceServiceImpl userService = new FetchBalanceServiceImpl()
 
     UserRepository userRepository = Mock()
 
@@ -16,13 +16,13 @@ class FetchBalanceServiceImplSpec extends Specification {
 
     String password
 
-    FetchBalanceRequest fetchBalanceRequest
+    AuthenticatedRequest fetchBalanceRequest
 
     void setup() {
         userService.userRepository = userRepository
-        email = "name@domain.com";
-        password = "password";
-        fetchBalanceRequest = new FetchBalanceRequest()
+        email = "name@domain.com"
+        password = "password"
+        fetchBalanceRequest = new AuthenticatedRequest()
         fetchBalanceRequest.email = email
         fetchBalanceRequest.password = password
     }

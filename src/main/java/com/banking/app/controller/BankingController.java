@@ -1,8 +1,7 @@
 package com.banking.app.controller;
 
+import com.banking.app.controller.request.AuthenticatedRequest;
 import com.banking.app.controller.request.CashOperationRequest;
-import com.banking.app.controller.request.FetchBalanceRequest;
-import com.banking.app.controller.request.FetchStatementRequest;
 import com.banking.app.controller.request.RegisterUserRequest;
 import com.banking.app.controller.response.FetchBalanceResponse;
 import com.banking.app.controller.response.FetchStatementResponse;
@@ -15,7 +14,6 @@ import com.banking.app.service.FetchBalanceService;
 import com.banking.app.service.RegisterUserService;
 import com.banking.app.service.StatementService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +46,7 @@ public class BankingController {
     }
 
     @GetMapping("/user/balance")
-    public ResponseEntity<FetchBalanceResponse> fetchBalance(@Valid @RequestBody FetchBalanceRequest fetchBalanceRequest) throws UserNotFoundException {
+    public ResponseEntity<FetchBalanceResponse> fetchBalance(@Valid @RequestBody AuthenticatedRequest fetchBalanceRequest) throws UserNotFoundException {
         return ResponseEntity.ok(fetchBalanceService
                 .fetchBalance(fetchBalanceRequest));
     }
@@ -66,7 +64,7 @@ public class BankingController {
     }
 
     @GetMapping("/user/statement")
-    public ResponseEntity<FetchStatementResponse> fetchStatement(@Valid @RequestBody FetchStatementRequest fetchStatementRequest) {
+    public ResponseEntity<FetchStatementResponse> fetchStatement(@Valid @RequestBody AuthenticatedRequest fetchStatementRequest) throws UserNotFoundException {
         return ResponseEntity.ok(statementService
                 .fetchStatement(fetchStatementRequest));
     }

@@ -1,6 +1,6 @@
 package com.banking.app.service.impl;
 
-import com.banking.app.controller.request.FetchBalanceRequest;
+import com.banking.app.controller.request.AuthenticatedRequest;
 import com.banking.app.controller.response.FetchBalanceResponse;
 import com.banking.app.exception.UserNotFoundException;
 import com.banking.app.repository.UserRepository;
@@ -18,7 +18,7 @@ class FetchBalanceServiceImpl implements FetchBalanceService {
     private UserRepository userRepository;
 
     @Override
-    public FetchBalanceResponse fetchBalance(FetchBalanceRequest fetchBalanceRequest) throws UserNotFoundException {
+    public FetchBalanceResponse fetchBalance(AuthenticatedRequest fetchBalanceRequest) throws UserNotFoundException {
         return userRepository
                 .findByEmail(fetchBalanceRequest.getEmail())
                 .flatMap(this::processDbEntity)

@@ -1,8 +1,8 @@
 package com.banking.app.controller
 
+import com.banking.app.controller.request.AuthenticatedRequest
 import com.banking.app.controller.request.CashOperationRequest
-import com.banking.app.controller.request.FetchBalanceRequest
-import com.banking.app.controller.request.FetchStatementRequest
+
 import com.banking.app.controller.request.RegisterUserRequest
 import com.banking.app.controller.response.FetchBalanceResponse
 import com.banking.app.controller.response.FetchStatementResponse
@@ -30,7 +30,7 @@ class BankingControllerSpec extends Specification {
         controller.registerUserService = registerUserService
         controller.fetchBalanceService = fetchBalanceService
         controller.cashOperationService = cashOperationService
-        controller.statementService = statementService;
+        controller.statementService = statementService
 
     }
 
@@ -49,7 +49,7 @@ class BankingControllerSpec extends Specification {
     def "fetchBalance returns user when it exists"() {
         given:
         def fetchBalanceResponse = new FetchBalanceResponse()
-        def fetchBalanceRequest = new FetchBalanceRequest()
+        def fetchBalanceRequest = new AuthenticatedRequest()
         fetchBalanceService.fetchBalance(fetchBalanceRequest) >> fetchBalanceResponse
 
         when:
@@ -85,7 +85,7 @@ class BankingControllerSpec extends Specification {
 
     def "fetchStatement return correct response"() {
         given:
-        def fetchStatementRequest = new FetchStatementRequest()
+        def fetchStatementRequest = new AuthenticatedRequest()
         def fetchStatementResponse = new FetchStatementResponse()
         statementService.fetchStatement(fetchStatementRequest) >> fetchStatementResponse
 

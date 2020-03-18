@@ -11,7 +11,6 @@ import com.banking.app.repository.entity.User;
 import com.banking.app.service.CashOperationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
@@ -30,27 +29,25 @@ class CashOperationServiceImpl implements CashOperationService {
     @Override
     public void perform(CashOperationRequest cashOperationRequest, Operation operation) throws UserNotFoundException, InsufficientFundsException {
         Optional<User> userOptional = userRepository.findByEmail(cashOperationRequest.getEmail());
-        userOptional
+        User user = userOptional
                 .orElseThrow(UserNotFoundException::new);
 
-        userOptional
-                .filter(user -> isValidEndBalance(operation, user.getBalance(), cashOperationRequest.getAmount()))
-                .orElseThrow(InsufficientFundsException::new);
+        validateBalance(operation, user.getBalance(), cashOperationRequest.getAmount());
 
-        userOptional
-                .map(user -> performOperation(operation, cashOperationRequest.getAmount(), user));
+        performOperation(operation, cashOperationRequest.getAmount(), user);
     }
 
     private User performOperation(Operation operation, BigDecimal amount, User user){
         updateUser(operation, amount, user);
-        writeAccountEvent(operation, amount, user);
+        saveAccountEvent(operation, amount, user);
 
         return user;
     }
 
-    private boolean isValidEndBalance(Operation operation, BigDecimal balance, BigDecimal amount) {
-        return Operation.DEPOSIT == operation
-                || balance.compareTo(amount) >= 0;
+    private void validateBalance(Operation operation, BigDecimal balance, BigDecimal amount) throws InsufficientFundsException {
+        if(!(Operation.DEPOSIT == operation
+                || balance.compareTo(amount) >= 0))
+            throw new InsufficientFundsException();
     }
 
     private void updateUser(Operation operation, BigDecimal amount, User user) {
@@ -59,7 +56,7 @@ class CashOperationServiceImpl implements CashOperationService {
         userRepository.save(user);
     }
 
-    private void writeAccountEvent(Operation operation, BigDecimal amount, User user){
+    private void saveAccountEvent(Operation operation, BigDecimal amount, User user){
         AccountEvent accountEvent = new AccountEvent();
         accountEvent.setAmount(amount);
         accountEvent.setOperation(operation);

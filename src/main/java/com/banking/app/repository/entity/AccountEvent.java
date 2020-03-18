@@ -1,11 +1,16 @@
 package com.banking.app.repository.entity;
 
 import com.banking.app.operation.Operation;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Objects;
 
+@Getter
+@Setter
+@EqualsAndHashCode
 @Entity
 @Table(name = "account_events")
 public class AccountEvent {
@@ -21,55 +26,9 @@ public class AccountEvent {
     @Column
     private Operation operation;
 
-    @ManyToOne
-    @JoinColumn(name="user", nullable=false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name="user_id", nullable=false)
+    @EqualsAndHashCode.Exclude
     private User user;
 
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Operation getOperation() {
-        return operation;
-    }
-
-    public void setOperation(Operation operation) {
-        this.operation = operation;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AccountEvent that = (AccountEvent) o;
-        return Objects.equals(id, that.id) &&
-               Objects.equals(amount, that.amount) &&
-               Objects.equals(user, that.user);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, amount, user);
-    }
 }

@@ -1,5 +1,6 @@
 package com.banking.app.controller;
 
+import com.banking.app.exception.AuthenticationFailedException;
 import com.banking.app.exception.InsufficientFundsException;
 import com.banking.app.exception.UserAlreadyExistsException;
 import com.banking.app.exception.UserNotFoundException;
@@ -30,6 +31,13 @@ public class UserAdvice {
     @ExceptionHandler(InsufficientFundsException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     String insufficientFundsHandler(InsufficientFundsException ex) {
+        return ex.getMessage();
+    }
+
+    @ResponseBody
+    @ExceptionHandler(AuthenticationFailedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    String authenticationFailedHandler(AuthenticationFailedException ex) {
         return ex.getMessage();
     }
 }
