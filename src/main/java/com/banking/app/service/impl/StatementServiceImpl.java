@@ -11,7 +11,7 @@ import com.banking.app.service.StatementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 import static java.util.stream.Collectors.toCollection;
 
@@ -35,17 +35,19 @@ class StatementServiceImpl implements StatementService {
         return response;
     }
 
-    private HashSet<AccountEventResponse> getAccountEventResponses(User user) {
+    private LinkedHashSet<AccountEventResponse> getAccountEventResponses(User user) {
         return user.getAccountEvents()
                 .stream()
                 .map(this::getAccountEventResponse)
-                .collect(toCollection(HashSet::new));
+                .collect(toCollection(LinkedHashSet::new));
     }
 
     private AccountEventResponse getAccountEventResponse(AccountEvent event) {
         AccountEventResponse eventResponse = new AccountEventResponse();
         eventResponse.setAmount(event.getAmount());
         eventResponse.setOperation(event.getOperation());
+        eventResponse.setBalanceAfterOperation(event.getBalanceAfterOperation());
+        eventResponse.setCreationDate(event.getCreationDate());
         return eventResponse;
     }
 }

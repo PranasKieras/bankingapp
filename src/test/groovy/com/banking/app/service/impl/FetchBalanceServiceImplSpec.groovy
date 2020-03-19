@@ -6,6 +6,8 @@ import com.banking.app.repository.UserRepository
 import com.banking.app.repository.entity.User
 import spock.lang.Specification
 
+import static java.math.BigDecimal.*
+
 class FetchBalanceServiceImplSpec extends Specification {
 
     FetchBalanceServiceImpl userService = new FetchBalanceServiceImpl()
@@ -27,29 +29,33 @@ class FetchBalanceServiceImplSpec extends Specification {
         fetchBalanceRequest.password = password
     }
 
-    def "fetchBalance returns response when user exists"() {
-        given:
-        userRepository.findByEmail(email) >> Optional.of(createUser(email, password))
-        when:
+    def "fetchBalance returns response"() {
+        given: "user exists with balance 10.00"
+        userRepository.findByEmail(email) >> Optional.of(createUser(email, password, TEN))
+        when: "userService fetchBalance is called"
         def userResponse = userService.fetchBalance(fetchBalanceRequest)
-        then:
+        then: "userResponse is not null"
         userResponse
+        and: "provided email is same as response email"
         email == userResponse.getEmail()
+        and: "returned balance is 10.00"
+        TEN == userResponse.balance
     }
 
-    def "fetchBalance throws UserNotFoundException when user does not exist"() {
-        given:
+    def "fetchBalance throws exception"() {
+        given: "user does not exists"
         userRepository.findByEmail(email) >> Optional.empty()
-        when:
+        when: "userService fetchBalance is called"
         userService.fetchBalance(fetchBalanceRequest)
-        then:
+        then: "UserNotFoundException is thrown"
         thrown UserNotFoundException
     }
 
-    def createUser(String email, String password) {
+    def createUser(String email, String password, BigDecimal balance) {
         def user = new User()
         user.email = email
         user.password = password
+        user.balance = balance
 
         return user
     }

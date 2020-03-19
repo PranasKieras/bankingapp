@@ -2,7 +2,6 @@ package com.banking.app.controller;
 
 import com.banking.app.controller.request.AuthenticatedRequest;
 import com.banking.app.controller.request.CashOperationRequest;
-import com.banking.app.controller.request.RegisterUserRequest;
 import com.banking.app.controller.response.FetchBalanceResponse;
 import com.banking.app.controller.response.FetchStatementResponse;
 import com.banking.app.exception.InsufficientFundsException;
@@ -40,8 +39,8 @@ public class BankingController {
     private StatementService statementService;
 
     @PostMapping("/user")
-    public ResponseEntity<String> registerUser(@Valid @RequestBody RegisterUserRequest signUpUserRequest) throws UserAlreadyExistsException {
-        registerUserService.registerUser(signUpUserRequest);
+    public ResponseEntity<String> registerUser(@Valid @RequestBody AuthenticatedRequest registerUserRequest) throws UserAlreadyExistsException {
+        registerUserService.registerUser(registerUserRequest);
         return ResponseEntity.ok("{}");
     }
 

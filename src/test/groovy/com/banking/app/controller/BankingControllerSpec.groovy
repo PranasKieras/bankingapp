@@ -3,7 +3,7 @@ package com.banking.app.controller
 import com.banking.app.controller.request.AuthenticatedRequest
 import com.banking.app.controller.request.CashOperationRequest
 
-import com.banking.app.controller.request.RegisterUserRequest
+
 import com.banking.app.controller.response.FetchBalanceResponse
 import com.banking.app.controller.response.FetchStatementResponse
 import com.banking.app.operation.Operation
@@ -36,7 +36,7 @@ class BankingControllerSpec extends Specification {
 
     def "registerUser calls registerUserService registerUserRequest"() {
         given:
-        def registerUserRequest = new RegisterUserRequest()
+        def registerUserRequest = new AuthenticatedRequest()
 
         when:
         def response = controller.registerUser(registerUserRequest)

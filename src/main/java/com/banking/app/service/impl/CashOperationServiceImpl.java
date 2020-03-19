@@ -60,6 +60,7 @@ class CashOperationServiceImpl implements CashOperationService {
         AccountEvent accountEvent = new AccountEvent();
         accountEvent.setAmount(amount);
         accountEvent.setOperation(operation);
+        accountEvent.setBalanceAfterOperation(user.getBalance());
         accountEvent.setUser(user);
         accountEventRepository.save(accountEvent);
     }

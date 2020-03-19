@@ -10,24 +10,26 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
-    private static final String REGISTRATION_PATH = "/api/user";
-
     @Override
     public boolean preHandle(
             HttpServletRequest request,
             HttpServletResponse response,
             Object handler) throws Exception {
-        if(request.getPathInfo().equalsIgnoreCase(REGISTRATION_PATH))
+        if (isCustomerRegistration(request))
             return true;
         String authenticated = request.getHeader("authenticated");
         validateAuthenticationInfo(authenticated);
 
-
         return true;
     }
 
+    private boolean isCustomerRegistration(HttpServletRequest request) {
+        return request.getPathInfo().equalsIgnoreCase("/api/user")
+                && request.getMethod().equalsIgnoreCase("POST");
+    }
+
     private void validateAuthenticationInfo(String authenticated) throws AuthenticationFailedException {
-        if(!"true".equalsIgnoreCase(authenticated))
+        if (!"true".equalsIgnoreCase(authenticated))
             throw new AuthenticationFailedException();
     }
 }

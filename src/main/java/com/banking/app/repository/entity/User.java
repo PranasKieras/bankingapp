@@ -1,17 +1,20 @@
 package com.banking.app.repository.entity;
 
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Set;
 
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "user")
 public class User {
 
@@ -32,6 +35,11 @@ public class User {
     @OneToMany(mappedBy = "user")
     @EqualsAndHashCode.Exclude
     private Set<AccountEvent> accountEvents;
+
+    @CreatedDate
+    @Column(name = "created_date", nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date creationDate;
 
     @Version
     private Integer version;

@@ -27,6 +27,7 @@ class CashOperationServiceImplSpec extends Specification {
     String password
 
     def setup() {
+        given:"default setup"
         cashOperationService.userRepository = userRepository
         cashOperationService.accountEventRepository = accountEventRepository
         depositRequest = new CashOperationRequest()
@@ -37,51 +38,61 @@ class CashOperationServiceImplSpec extends Specification {
         depositRequest.amount = TEN
     }
 
-    def "deposit calls AccountEventRepository and UserRepository when data is valid"() {
-        given:
-        def user = createUser(email, password, ZERO)
-        userRepository.findByEmail(email) >> Optional.of(user)
-
-        when:
+    def "deposit is successful"() {
+        given:"user exists"
+        userRepository.findByEmail(email) >> Optional.of(createUser(email, password, ZERO))
+        when: "cashOperationService DEPOSIT operation is called"
         cashOperationService.perform(depositRequest, Operation.DEPOSIT)
-
-        then:
+        then: "userRepository save is called once"
         1 * userRepository.save(createUser(email, password, TEN))
-        1 * accountEventRepository.save(createAccountEvent(TEN, user, Operation.DEPOSIT))
+        and: "accountEventRepository save is called once"
+        1 * accountEventRepository.save(createAccountEvent(TEN, createUser(email, password, TEN), Operation.DEPOSIT))
     }
 
-    def "deposit calls throws UserNotFoundException when user does not exist"() {
-        given:
+    def "deposit throws exception"() {
+        given: "user does not exists"
         userRepository.findByEmail(email) >> Optional.empty()
-
-        when:
+        when: "cashOperationService DEPOSIT is called"
         cashOperationService.perform(depositRequest, Operation.DEPOSIT)
-
-        then:
+        then: "UserNotFoundException is thrown"
         thrown UserNotFoundException
     }
 
-    def "withdrawal throws InsufficientFundsException amount larger than balance"() {
-        given:
-        def user = createUser(email, password, ONE)
-        userRepository.findByEmail(email) >> Optional.of(user)
-        when:
+    def "withdrawal is ok when balance is more than amount"() {
+        given: "user exists and balance is 10.00"
+        userRepository.findByEmail(email) >> Optional.of(createUser(email, password, TEN))
+        and: "request amount is ONE"
+        depositRequest.amount = ONE
+        when: "cashOperationService WITHDRAWAL is called"
         cashOperationService.perform(depositRequest, Operation.WITHDRAWAL)
-
-        then:
-        thrown InsufficientFundsException
+        then: "userRepository save is called once with balance 0.00"
+        1 * userRepository.save(createUser(email, password, new BigDecimal(9)))
+        and: "accountEventRepository save is called with type WITHDRAWAL and amount TEN"
+        1 * accountEventRepository.save(createAccountEvent(ONE, createUser(email, password, new BigDecimal(9)), Operation.WITHDRAWAL))
     }
 
     def "withdrawal is ok when amount same as balance"() {
-        given:
-        def user = createUser(email, password, TEN)
-        userRepository.findByEmail(email) >> Optional.of(user)
-        when:
+        given: "user exists and balance is 10.00"
+        userRepository.findByEmail(email) >> Optional.of(createUser(email, password, TEN))
+        and: "request amount is TEN"
+        depositRequest.amount = TEN
+        when: "cashOperationService WITHDRAWAL is called"
         cashOperationService.perform(depositRequest, Operation.WITHDRAWAL)
-
-        then:
+        then: "userRepository save is called once with balance 0.00"
         1 * userRepository.save(createUser(email, password, ZERO))
-        1 * accountEventRepository.save(createAccountEvent(TEN, user, Operation.WITHDRAWAL))
+        and: "accountEventRepository save is called with type WITHDRAWAL and amount TEN"
+        1 * accountEventRepository.save(createAccountEvent(TEN, createUser(email, password, ZERO), Operation.WITHDRAWAL))
+    }
+
+    def "withdrawal throws exception"() {
+        given: "user exists and balance is 1.00"
+        userRepository.findByEmail(email) >> Optional.of(createUser(email, password, ONE))
+        and: "withdrawal amount is 10.00"
+        depositRequest.amount = TEN
+        when: "cashOperationService WITHDRAWAL is called"
+        cashOperationService.perform(depositRequest, Operation.WITHDRAWAL)
+        then: "InsufficientFundsException is throw"
+        thrown InsufficientFundsException
     }
 
     def createUser(String email, String password, BigDecimal balance) {
@@ -95,7 +106,7 @@ class CashOperationServiceImplSpec extends Specification {
     def createAccountEvent(BigDecimal amount, User user, Operation operation) {
         AccountEvent event = new AccountEvent()
         event.amount = amount
-        event.user = user
+        event.balanceAfterOperation = user.balance
         event.operation = operation
         return event
     }
