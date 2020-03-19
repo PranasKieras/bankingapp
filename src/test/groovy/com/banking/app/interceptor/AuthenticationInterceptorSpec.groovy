@@ -22,7 +22,7 @@ class AuthenticationInterceptorSpec extends Specification {
         request.getPathInfo() >> "/api/user"
         and: "request method is POST"
         request.getMethod() >> "POST"
-        when:
+        when: "interceptor preHandle is called"
         def returns = interceptor.preHandle(request, response, handler)
         then: "returns true"
         returns
@@ -33,7 +33,7 @@ class AuthenticationInterceptorSpec extends Specification {
         request.getPathInfo() >> "/api/user/deposit"
         and: "authenticated header is true"
         request.getHeader("authenticated") >> "true"
-        when:
+        when: "interceptor preHandle is called"
         def returns = interceptor.preHandle(request, response, handler)
         then: "returns true"
         returns
@@ -44,7 +44,7 @@ class AuthenticationInterceptorSpec extends Specification {
         request.getPathInfo() >> "/api/user/deposit"
         and: "authenticated header is false"
         request.getHeader("authenticated") >> "false"
-        when:
+        when: "interceptor preHandle is called"
         interceptor.preHandle(request, response, handler)
         then: "throws AuthenticationFailedException"
         thrown AuthenticationFailedException

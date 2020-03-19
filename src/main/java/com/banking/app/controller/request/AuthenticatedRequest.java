@@ -17,5 +17,4 @@ public class AuthenticatedRequest implements Serializable {
     @NotEmpty(message = "password is a mandatory field")
     @Size(min=8, max=100, message = "mandatory field min length 8 max length 100 characters")
     private String password;
-
 }

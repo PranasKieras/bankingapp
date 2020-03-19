@@ -73,8 +73,23 @@ class BankingApplicationTests {
                         "\"password\" : \"password\"" +
                         "}")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("email is a mandatory field"));
+
     }
+
+    @Test
+    public void givenPasswordTooShort_whenCreateUser_thenStatus400() throws Exception {
+        mvc.perform(post("/api/user")
+                .content("{" +
+                         "\"email\" : \"name12@domain.com\", " +
+                         "\"password\" : \"passwor\"" +
+                         "}")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("mandatory field min length 8 max length 100 characters"));
+    }
+
 
     @Test
     public void givenBadEmailFormat_whenFetchBalance_thenStatus400() throws Exception {
@@ -86,7 +101,6 @@ class BankingApplicationTests {
                         "}")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
-
     }
 
     @Test

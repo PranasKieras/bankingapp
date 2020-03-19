@@ -35,14 +35,13 @@ class BankingControllerSpec extends Specification {
     }
 
     def "registerUser calls registerUserService registerUserRequest"() {
-        given:
+        given: "authentication request"
         def registerUserRequest = new AuthenticatedRequest()
-
-        when:
+        when: "registerUser is called"
         def response = controller.registerUser(registerUserRequest)
-
-        then:
+        then: "registerUserService registerUser is called with authentication request"
         1 * registerUserService.registerUser(registerUserRequest)
+        and: "response is returned with status ok and empty body"
         response == ResponseEntity.ok("{}")
     }
 
@@ -50,36 +49,33 @@ class BankingControllerSpec extends Specification {
         given:
         def fetchBalanceResponse = new FetchBalanceResponse()
         def fetchBalanceRequest = new AuthenticatedRequest()
+        and: "fetchBalanceService fetch valance returns response"
         fetchBalanceService.fetchBalance(fetchBalanceRequest) >> fetchBalanceResponse
-
-        when:
+        when: "fetchBalance is called"
         def response = controller.fetchBalance(fetchBalanceRequest)
-
-        then:
+        then: "response is ok and body is fetchBalanceResponse"
         response == ResponseEntity.ok(fetchBalanceResponse)
     }
 
     def "deposit calls cashOperationService"() {
-        given:
+        given: "deposit request"
         def depositRequest = new CashOperationRequest()
-
-        when:
+        when: "controller deposit is called"
         def response = controller.deposit(depositRequest)
-
-        then:
+        then: "cashOperationService perform is called once with deposit request and operation DEPOSIT"
         1 * cashOperationService.perform(depositRequest, Operation.DEPOSIT)
+        and: "response is ok with empty body"
         response == ResponseEntity.ok("{}")
     }
 
     def "withdraw calls cashOperationService"() {
-        given:
-        def cashOperationRequest = new CashOperationRequest()
-
-        when:
-        def response = controller.withdraw(cashOperationRequest)
-
-        then:
-        1 * cashOperationService.perform(cashOperationRequest, Operation.WITHDRAWAL)
+        given: "withdrawal request"
+        def withdrawalRequest = new CashOperationRequest()
+        when: "when controller.withdraw is called"
+        def response = controller.withdraw(withdrawalRequest)
+        then: "cashOperationService.perform is called once with withdrawal request and operation DEPOSIT"
+        1 * cashOperationService.perform(withdrawalRequest, Operation.WITHDRAWAL)
+        and: "response is ok with empty body"
         response == ResponseEntity.ok("{}")
     }
 
@@ -87,12 +83,12 @@ class BankingControllerSpec extends Specification {
         given:
         def fetchStatementRequest = new AuthenticatedRequest()
         def fetchStatementResponse = new FetchStatementResponse()
+        and: "statementService fetchStatement returns fetchStatementResponse"
         statementService.fetchStatement(fetchStatementRequest) >> fetchStatementResponse
-
-        when:
+        when: "controller fetchStatement is called"
         def response = controller.fetchStatement(fetchStatementRequest)
-
-        then:
+        then: "statementService fetchStatement is called once with fetchStatement request"
+        and: "response is ok with empty body"
         response == ResponseEntity.ok(fetchStatementResponse)
     }
 }

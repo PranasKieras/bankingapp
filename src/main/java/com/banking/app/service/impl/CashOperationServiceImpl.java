@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -28,25 +27,20 @@ class CashOperationServiceImpl implements CashOperationService {
 
     @Override
     public void perform(CashOperationRequest cashOperationRequest, Operation operation) throws UserNotFoundException, InsufficientFundsException {
-        Optional<User> userOptional = userRepository.findByEmail(cashOperationRequest.getEmail());
-        User user = userOptional
+        User user = userRepository
+                .findByEmail(cashOperationRequest.getEmail())
                 .orElseThrow(UserNotFoundException::new);
 
         validateBalance(operation, user.getBalance(), cashOperationRequest.getAmount());
 
-        performOperation(operation, cashOperationRequest.getAmount(), user);
-    }
+        updateUser(operation, cashOperationRequest.getAmount(), user);
 
-    private User performOperation(Operation operation, BigDecimal amount, User user){
-        updateUser(operation, amount, user);
-        saveAccountEvent(operation, amount, user);
-
-        return user;
+        saveAccountEvent(operation, cashOperationRequest.getAmount(), user);
     }
 
     private void validateBalance(Operation operation, BigDecimal balance, BigDecimal amount) throws InsufficientFundsException {
-        if(!(Operation.DEPOSIT == operation
-                || balance.compareTo(amount) >= 0))
+        if(Operation.WITHDRAWAL == operation
+                && balance.compareTo(amount) < 0)
             throw new InsufficientFundsException();
     }
 

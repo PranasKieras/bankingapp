@@ -4,7 +4,9 @@ import com.banking.app.exception.AuthenticationFailedException;
 import com.banking.app.exception.InsufficientFundsException;
 import com.banking.app.exception.UserAlreadyExistsException;
 import com.banking.app.exception.UserNotFoundException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,5 +41,17 @@ public class UserAdvice {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     String authenticationFailedHandler(AuthenticationFailedException ex) {
         return ex.getMessage();
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    String methodValidationExceptionHandler(MethodArgumentNotValidException ex) {
+        return ex.getBindingResult()
+                .getAllErrors()
+                .stream()
+                .findFirst()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .orElse("unknown error");
     }
 }
